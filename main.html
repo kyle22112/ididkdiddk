@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced UV Style Search Proxy</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap">
+    <style>
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #e0f7fa; /* Light blue background */
+            color: #4b0082; /* Purple text color */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            text-align: center;
+        }
+        .container {
+            background: #ffffff; /* White background for the container */
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+        }
+        h1 {
+            color: #4b0082; /* Purple color */
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 600;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.3);
+        }
+        input[type="text"] {
+            width: calc(100% - 150px);
+            padding: 15px;
+            border: 2px solid #4b0082; /* Purple border */
+            border-radius: 8px;
+            background: #ffffff; /* White input background */
+            color: #000000; /* Black text color for input */
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        input[type="text"]:focus {
+            border-color: #6a0dad; /* Lighter purple on focus */
+            box-shadow: 0 0 10px rgba(106, 13, 173, 0.5); /* Purple glow effect */
+        }
+        button {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 8px;
+            background-color: #4b0082; /* Purple button */
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+        button:hover {
+            background-color: #3d007d; /* Darker purple on hover */
+            transform: scale(1.05);
+        }
+        button:focus {
+            outline: none;
+        }
+        iframe {
+            width: 100%;
+            height: 70vh;
+            border: none;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+            transition: opacity 0.3s ease;
+        }
+        iframe.loading {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Enhanced UV Style Search Proxy</h1>
+        <input type="text" id="searchInput" placeholder="Enter your search query" aria-label="Search Query" />
+        <button onclick="search()">Search</button>
+        <iframe id="resultFrame" class="loading"></iframe>
+    </div>
+
+    <script>
+        document.getElementById('searchInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                search();
+            }
+        });
+
+        async function search() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (query) {
+                const encodedQuery = encodeURIComponent(query);
+                const proxyURL = `https://api.allorigins.win/raw?url=https://www.google.com/search?q=${encodedQuery}`;
+                const frame = document.getElementById('resultFrame');
+                frame.classList.add('loading');
+                try {
+                    const response = await fetch(proxyURL);
+                    if (response.ok) {
+                        const html = await response.text();
+                        const blob = new Blob([html], { type: 'text/html' });
+                        frame.src = URL.createObjectURL(blob);
+                        frame.onload = function() {
+                            frame.classList.remove('loading');
+                        };
+                    } else {
+                        throw new Error('Network response was not ok.');
+                    }
+                } catch (error) {
+                    frame.classList.remove('loading');
+                    console.error('Error during search:', error); // Log error to console for debugging
+                    alert('Failed to load the search results: ' + error.message);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
